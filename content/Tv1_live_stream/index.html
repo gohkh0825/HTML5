@@ -1,24 +1,34 @@
 <!DOCTYPE html>
-	<html>
-		<head>
-			<meta charset="UTF-8">
-				<title>TV1</title>
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<link rel="stylesheet" href="https://ejunds.github.io/mifn-iptv/style.css">
-			<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.debug.min.js">
-			</script>
-			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css">
-			<script src='//cdn.jsdelivr.net/hls.js/latest/hls.js'></script>
-		</head>
-		<body>
-			<center>
-				<div data-shaka-player-container="" style="width: 100%; height: 100%; cursor: none;" class="shaka-mobile shaka-video-container" shaka-controls="true">
-					<video autoplay="" data-shaka-player="" id="video" style="width:100%;height:100%;" class="shaka-video" src="">
-					</video>
-				</div>
-				<script  src="./video.js">
-				</script>
-			</center>
-		</body>
-	</html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TV1</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://ejunds.github.io/mifn-iptv/style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.debug.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css">
+    
+    <style>
+        /* 替代原本的 <center> 标签，让播放器完美铺满屏幕并去黑边 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    
+    <div data-shaka-player-container="" style="width: 100%; height: 100%; cursor: none;" class="shaka-mobile shaka-video-container" shaka-controls="true">
+        <video autoplay="" data-shaka-player="" id="video" style="width:100%;height:100%;" class="shaka-video" src=""></video>
+    </div>
+
+    <script src="http://php.gohkh7.eu.org/rtmklik/TV1/video.js"></script>
+
+</body>
+</html>
