@@ -1,34 +1,66 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>TV1</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://ejunds.github.io/mifn-iptv/style.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.debug.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css">
-    
-    <style>
-        /* 替代原本的 <center> 标签，让播放器完美铺满屏幕并去黑边 */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            overflow: hidden;
-        }
-    </style>
-</head>
-<body>
-    
-    <div data-shaka-player-container="" style="width: 100%; height: 100%; cursor: none;" class="shaka-mobile shaka-video-container" shaka-controls="true">
-        <video autoplay="" data-shaka-player="" id="video" style="width:100%;height:100%;" class="shaka-video" src=""></video>
-    </div>
+	<head>
+	<link rel="stylesheet" type="text/css" href="https://rtm-player.glueapi.io/latest/js/bitmovinplayer-ui.css">
+		<title>TV1</title>
+	<link rel="stylesheet" href="https://rtm-player.glueapi.io/latest/includes/css/index.97a5ceef.css?cache=202301042" type="text/css">
+	<link rel="stylesheet" href="https://rtm-player.glueapi.io/latest/includes/css/default.css?cache=2023010412" type="text/css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="robots" content="noindex">
+	<meta http-equiv="Cache-control" content="public">
+	
+	</head>
+	<body id="body">
+		<center>
+	
 
-    <script src="./video.js"></script>
+	<div id="player-container" class="container">
+	</div>
+	<div id="player-card-1">
+	普
+	</div>
+	
 
-</body>
+	<script src="https://rtm-player.glueapi.io/latest/js/index.31d8e00a.js?cache=202301042">
+	</script>
+	<script>
+	var initPlayer = function(id,setup) {
+		var gluePlayer = new GluePlyr();
+		gluePlayer.setup(id,setup);
+		return gluePlayer;
+	};
+	var title = "TV1";
+	var img = "https://rtm.glueapi.io/v1/content/1/image/960x540/images.title?c=20230104";
+	var token = "";
+	var playerSettings = {
+		apiPath : "https://rtm.glueapi.io",
+		svgPath : "/latest/includes",
+		watermark : "https://rtm-images.glueapi.io/filters:quality(100)/200x0/system/rtm-watermark.png",
+		target : "player-card-1",
+		poster :  "https://rtm.glueapi.io/v1/content/1/image/960x540/images.title?c=20230104",
+		site : "RTMKlik",
+		type : "video",
+		skin : "0",
+		psa : "",
+		ads : false,
+		casting : true,
+		// 方案一：将 DRM 令牌请求地址作为扁平属性直接传入
+		drm: "https://rtm-player.glueapi.io/latest/drm/token?kid=0x010A963CBBC537858C6B342B2F87D600"
+	}
+	
+
+	if(token != "") playerSettings.token = token;
+	window.addEventListener('DOMContentLoaded', function(event){
+		window.gluePlayer = initPlayer(1,playerSettings);
+	});
+	window['__onGCastApiAvailable'] = function(isAvailable) {
+		if (isAvailable) {
+			const castContext = cast.framework.CastContext.getInstance();
+		 	console.log("castContext",castContext);
+		}
+	};
+	</script>
+	
+  </center>
+	</body>
 </html>
