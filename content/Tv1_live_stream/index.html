@@ -44,8 +44,13 @@
 		psa : "",
 		ads : false,
 		casting : true,
-		// 方案一：将 DRM 令牌请求地址作为扁平属性直接传入
-		drm: "https://rtm-player.glueapi.io/latest/drm/token?kid=0x010A963CBBC537858C6B342B2F87D600"
+		drm: "https://rtm-player.glueapi.io/latest/drm/token?kid=0x010A963CBBC537858C6B342B2F87D600",
+		
+		// 基于流媒体开发经验：尝试通过配置项传递自定义 Headers（供 SDK 内部 fetch/XHR 使用）
+		// 注意：由于 Referer 是浏览器保护字段，部分浏览器即使在 SDK 里设置也可能会被拒绝
+		headers: {
+			"Referer": "https://rtmklik.rtm.gov.my/"
+		}
 	}
 	
 
