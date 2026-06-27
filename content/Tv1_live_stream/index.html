@@ -1,104 +1,117 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTM TV1 (Shaka Player + Referer 注入)</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.1/shaka-player.ui.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.1/controls.css">
-    
+    <title>EJALTV TV1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
     <style>
-        body {
-            margin: 0;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #fff;
-            font-family: sans-serif;
+        div a img { visibility: hidden; }
+        body { margin: 0; background-color: black; }
+        .shaka-seek-bar-container .shaka-seek-bar,
+        .shaka-volume-bar-container .shaka-volume-bar {
+            background: linear-gradient(to right, #051937, #00205b, #00247e, #22229f, #510dbc);
         }
-        .video-container {
-            width: 100%;
-            max-width: 1280px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        .shaka-video-container .material-icons-round {
+            color: #00abe2;
         }
-        video {
-            width: 100%;
-            height: auto;
+        .shaka-spinner-path {
+            stroke-dasharray: 1, 2000;
+            stroke-dashoffset: 0;
+            animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+            stroke-linecap: round;
+        }
+        @keyframes color {
+            0%, 100% { stroke: #d62d20; }
+            40% { stroke: #0057e7; }
+            66% { stroke: #008744; }
+            80%, 90% { stroke: #ffa700; }
         }
     </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css" crossorigin="anonymous" />
 </head>
 <body>
 
-    <div class="video-container" data-shaka-player-container>
-        <video id="video" data-shaka-player autoplay></video>
+    <center>
+        <b><p style="color:white; opacity:0.6; font-size:1.5em;">EJALTV TV1</p></b>
+    </center>
+
+    <div data-shaka-player-container style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">
+        <video autoplay data-shaka-player poster="https://image-resizer-cloud-cdn.api.tmcms.quickplay.com/image/AED0C736-D2D2-4E97-B2F6-4FF4A0ACE765/0-16x9.png?width=530" id="video" style="width:100%; height:100%;"></video>
     </div>
 
     <script>
-        async function initApp() {
-            shaka.polyfill.installAll();
-            
-            if (!shaka.Player.isBrowserSupported()) {
-                alert('抱歉，你的浏览器不支持 Shaka Player');
-                return;
-            }
-            
-            initPlayer();
-        }
+        const manifestUri = "https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/DASH/tv1.mpd";
 
-        async function initPlayer() {
+        async function init() {
             const video = document.getElementById('video');
-            const player = new shaka.Player();
-            await player.attach(video);
+            const ui = video['ui'];
+            const controls = ui.getControls();
+            const player = controls.getPlayer();
+            window.player = player;
+            window.ui = ui;
 
-            // ==========================================
-            // 【核心添加部分】：拦截网络请求并注入 Referer
-            // ==========================================
-            player.getNetworkingEngine().registerRequestFilter(function(type, request) {
-                // 我们只需要在请求视频清单 (MANIFEST) 和视频流切片 (MEDIA) 时伪造来源
-                if (type == shaka.net.NetworkingEngine.RequestType.MANIFEST || 
-                    type == shaka.net.NetworkingEngine.RequestType.MEDIA) {
-                    
-                    // 尝试将来源伪装成 RTMKlik 官方网站
-                    request.headers['Referer'] = 'https://rtmklik.rtm.gov.my/';
-                    console.log('已拦截请求，尝试注入 Referer:', request.uris[0]);
-                }
-            });
-            // ==========================================
+            player.setTextTrackVisibility(true);
 
-            // 配置 ClearKey DRM 解密服务器
             player.configure({
                 drm: {
                     servers: {
                         'org.w3.clearkey': 'https://php.gohkh7.eu.org/rtmklik/key-1'
                     }
+                },
+                abr: {
+                    defaultBandwidthEstimate: 16888,
+                    enabled: true,
+                    restrictions: {
+                        minHeight: 359,
+                        maxHeight: 720
+                    }
+                },
+                streaming: {
+                    bufferingGoal: 10
+                },
+                manifest: {
+                    retryParameters: {
+                        maxAttempts: 3
+                    }
+                },
+                networking: {
+                    retryParameters: {
+                        maxAttempts: 3
+                    }
                 }
             });
 
-            player.addEventListener('error', onErrorEvent);
-
-            // 你的实际 mpd 视频流地址
-            const manifestUri = 'https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/DASH/tv1.mpd?id=1';
+            player.addEventListener('error', onPlayerErrorEvent);
+            controls.addEventListener('error', onUIErrorEvent);
 
             try {
                 await player.load(manifestUri);
-                console.log('视频加载成功，正在播放...');
-            } catch (e) {
-                onError(e);
+                console.log('视频已成功加载。');
+            } catch (error) {
+                onPlayerError(error);
             }
         }
 
-        function onErrorEvent(event) {
-            onError(event.detail);
+        function onPlayerErrorEvent(errorEvent) {
+            onPlayerError(errorEvent.detail);
         }
 
-        function onError(error) {
-            console.error('播放报错:', error.code, error);
+        function onPlayerError(error) {
+            console.error('播放器错误：', error.code, error);
         }
 
-        document.addEventListener('DOMContentLoaded', initApp);
+        function onUIErrorEvent(errorEvent) {
+            onPlayerError(errorEvent.detail);
+        }
+
+        function initFailed(errorEvent) {
+            console.error('Shaka UI 加载失败。');
+        }
+
+        document.addEventListener('shaka-ui-loaded', init);
+        document.addEventListener('shaka-ui-load-failed', initFailed);
     </script>
 
 </body>
