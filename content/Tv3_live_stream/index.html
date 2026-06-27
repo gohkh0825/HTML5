@@ -1,29 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tv3</title>
+    <title>EJALTV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <style>
+        div a img { visibility: hidden; }
+        body { margin: 0; background-color: black; }
+        .shaka-seek-bar-container .shaka-seek-bar,
+        .shaka-volume-bar-container .shaka-volume-bar {
+            background: linear-gradient(to right, #051937, #00205b, #00247e, #22229f, #510dbc);
+        }
+        .shaka-video-container .material-icons-round {
+            color: #00abe2;
+        }
+        .shaka-spinner-path {
+            stroke-dasharray: 1, 2000;
+            stroke-dashoffset: 0;
+            animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
+            stroke-linecap: round;
+        }
+        @keyframes color {
+            0%, 100% { stroke: #d62d20; }
+            40% { stroke: #0057e7; }
+            66% { stroke: #008744; }
+            80%, 90% { stroke: #ffa700; }
+        }
+    </style>
 
-    <!-- Bradmax analytics -->
-    <script src="https://bradmax.com/static/bradmax-analytics-for-players/latest/bradmax.analytics.js">
-    </script>
-    <script>
-    function initApp() {
-        var element = document.getElementById("video");
-        var config = {
-            clientToken: "Pi-HRYm~PbkIZHgYX~3ZnkxPRBVyGYF~OZ8kPP",
-                
-        };
-        var api = new bradmax.analytics.Html5(element, config);
-    }
-
-    document.addEventListener("DOMContentLoaded", initApp);
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css" crossorigin="anonymous" />
 </head>
 <body>
-<h2>Tv3</h2>
 
-    <!-- HTML5 video tag -->
-    <video id="video" controls poster="https://github.com/MIFNtechnology/siaranMy/raw/main/logo/Tv3.png" width="950" height="700" src="https://mifntechnology.github.io/siaranMy/channels/Tv3/php.m3u8">
-    </video>
+    <center>
+        <b><p style="color:white; opacity:0.6; font-size:1.5em;">EJALTV</p></b>
+    </center>
+
+    <div data-shaka-player-container style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">
+        <video autoplay data-shaka-player poster="https://github.com/hpmurah2u/pejal/blob/PEJAL/ejaltv%20loading%20baru.png?raw=true" id="video" style="width:100%; height:100%;"></video>
+    </div>
+
+    <script>
+        const manifestUri = "https://ngtv-live-cbj.gcdn.co/Content/DASH/Live/channel(TV3)/master.mpd";
+
+        async function init() {
+            const video = document.getElementById('video');
+            const ui = video['ui'];
+            const controls = ui.getControls();
+            const player = controls.getPlayer();
+            window.player = player;
+            window.ui = ui;
+
+            player.setTextTrackVisibility(true);
+
+            player.configure({
+                drm: {
+                    clearKeys: {
+                        'ce43641a061a44fb9d95d986cfc9a68f': '3d63855ca5cdfcfb765f306b98bcc646'
+                    }
+                },
+                abr: {
+                    defaultBandwidthEstimate: 16888,
+                    enabled: true,
+                    restrictions: {
+                        minHeight: 359,
+                        maxHeight: 720
+                    }
+                },
+                streaming: {
+                    bufferingGoal: 10
+                },
+                manifest: {
+                    retryParameters: {
+                        maxAttempts: 3
+                    }
+                },
+                networking: {
+                    retryParameters: {
+                        maxAttempts: 3
+                    }
+                }
+            });
+
+            player.addEventListener('error', onPlayerErrorEvent);
+            controls.addEventListener('error', onUIErrorEvent);
+
+            try {
+                await player.load(manifestUri);
+                console.log('视频已成功加载。');
+            } catch (error) {
+                onPlayerError(error);
+            }
+        }
+
+        function onPlayerErrorEvent(errorEvent) {
+            onPlayerError(errorEvent.detail);
+        }
+
+        function onPlayerError(error) {
+            console.error('播放器错误：', error.code, error);
+        }
+
+        function onUIErrorEvent(errorEvent) {
+            onPlayerError(errorEvent.detail);
+        }
+
+        function initFailed(errorEvent) {
+            console.error('Shaka UI 加载失败。');
+        }
+
+        document.addEventListener('shaka-ui-loaded', init);
+        document.addEventListener('shaka-ui-load-failed', initFailed);
+    </script>
+
 </body>
 </html>
