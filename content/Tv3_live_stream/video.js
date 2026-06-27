@@ -1,4 +1,4 @@
-const manifestUri = 'https://unifi-live2.secureswiftcontent.com/Content/DASH/Live/channel(TV3)/master.mpd';
+const manifestUri = 'https://ngtv-live-cbj.gcdn.co/Content/DASH/Live/channel(TV3)/master.mpd';
 
     async function init() {
       const video = document.getElementById('video');
