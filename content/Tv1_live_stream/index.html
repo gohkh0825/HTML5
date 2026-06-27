@@ -1,71 +1,12 @@
 <!DOCTYPE html>
 <html>
-	<head>
-	<link rel="stylesheet" type="text/css" href="https://rtm-player.glueapi.io/latest/js/bitmovinplayer-ui.css">
-		<title>TV1</title>
-	<link rel="stylesheet" href="https://rtm-player.glueapi.io/latest/includes/css/index.97a5ceef.css?cache=202301042" type="text/css">
-	<link rel="stylesheet" href="https://rtm-player.glueapi.io/latest/includes/css/default.css?cache=2023010412" type="text/css">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<meta name="robots" content="noindex">
-	<meta http-equiv="Cache-control" content="public">
-	
-	</head>
-	<body id="body">
-		<center>
-	
-
-	<div id="player-container" class="container">
-	</div>
-	<div id="player-card-1">
-	普
-	</div>
-	
-
-	<script src="https://rtm-player.glueapi.io/latest/js/index.31d8e00a.js?cache=202301042">
-	</script>
-	<script>
-	var initPlayer = function(id,setup) {
-		var gluePlayer = new GluePlyr();
-		gluePlayer.setup(id,setup);
-		return gluePlayer;
-	};
-	var title = "TV1";
-	var img = "https://rtm.glueapi.io/v1/content/1/image/960x540/images.title?c=20230104";
-	var token = "";
-	var playerSettings = {
-		apiPath : "https://rtm.glueapi.io",
-		svgPath : "/latest/includes",
-		watermark : "https://rtm-images.glueapi.io/filters:quality(100)/200x0/system/rtm-watermark.png",
-		target : "player-card-1",
-		poster :  "https://rtm.glueapi.io/v1/content/1/image/960x540/images.title?c=20230104",
-		site : "RTMKlik",
-		type : "video",
-		skin : "0",
-		psa : "",
-		ads : false,
-		casting : true,
-		drm: "https://rtm-player.glueapi.io/latest/drm/token?kid=0x010A963CBBC537858C6B342B2F87D600",
-		
-		// 基于流媒体开发经验：尝试通过配置项传递自定义 Headers（供 SDK 内部 fetch/XHR 使用）
-		// 注意：由于 Referer 是浏览器保护字段，部分浏览器即使在 SDK 里设置也可能会被拒绝
-		headers: {
-			"Referer": "https://rtmklik.rtm.gov.my/"
-		}
-	}
-	
-
-	if(token != "") playerSettings.token = token;
-	window.addEventListener('DOMContentLoaded', function(event){
-		window.gluePlayer = initPlayer(1,playerSettings);
-	});
-	window['__onGCastApiAvailable'] = function(isAvailable) {
-		if (isAvailable) {
-			const castContext = cast.framework.CastContext.getInstance();
-		 	console.log("castContext",castContext);
-		}
-	};
-	</script>
-	
-  </center>
-	</body>
+<head>
+<meta charset="UTF-8">
+    <title>Tv2</title>
+<link rel="stylesheet" href="https://ejunds.github.io/mifn-iptv/style.css">
+</head>
+<body>
+    <iframe src="https://rtm-player.glueapi.io/latest/h/1?t=1745595182" width="100%" height="680" frameborder="0" allowfullscreen="" scrolling="no" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; idle-detection">
+    </iframe>
+</body>
 </html>
