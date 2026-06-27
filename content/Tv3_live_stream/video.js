@@ -1,4 +1,4 @@
-const manifestUri = 'http://mpd-iptv.gkh8888.qzz.io/unifi/TV3.mpd';
+const manifestUri = 'https://mpd-iptv.gkh8888.qzz.io/unifi/TV3.mpd';
 
     async function init() {
       const video = document.getElementById('video');
