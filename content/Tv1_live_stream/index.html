@@ -42,7 +42,7 @@
     </div>
 
     <script>
-        const manifestUri = "https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/DASH/tv1.mpd?id=1";
+        const manifestUri = "https://ngtv-live-cbj.gcdn.co/Content/DASH/Live/channel(TV1)/master.mpd";
 
         async function init() {
             const video = document.getElementById('video');
@@ -53,7 +53,13 @@
             window.ui = ui;
 
             player.setTextTrackVisibility(true);
-
+            
+            player.configure({
+                drm: {
+                    clearKeys: {
+                        '1fe3d74e8cbc4ee0b071a64257068e38': '77ece75d9526f5beac0ab6bf1ee3bd89'
+                    }
+                },
             
                 abr: {
                     defaultBandwidthEstimate: 16888,
