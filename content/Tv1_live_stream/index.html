@@ -38,11 +38,11 @@
     </center>
 
     <div data-shaka-player-container style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">
-        <video autoplay data-shaka-player poster="https://image-resizer-cloud-cdn.api.tmcms.quickplay.com/image/AED0C736-D2D2-4E97-B2F6-4FF4A0ACE765/0-16x9.png?width=530" id="video" style="width:100%; height:100%;"></video>
+        <video autoplay data-shaka-player poster="https://rtm-images.glueapi.io/480x0/live_channel/TV1.jpg" id="video" style="width:100%; height:100%;"></video>
     </div>
 
     <script>
-        const manifestUri = "https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/DASH/tv1.mpd";
+        const manifestUri = "https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/HLS/tv1.m3u8";
 
         async function init() {
             const video = document.getElementById('video');
