@@ -42,7 +42,7 @@
     </div>
 
     <script>
-        const manifestUri = "https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/HLS/tv1.m3u8";
+        const manifestUri = "https://d25tgymtnqzu8s.cloudfront.net/live/media0/tv1/DASH/tv1.mpd?id=1";
 
         async function init() {
             const video = document.getElementById('video');
@@ -57,7 +57,7 @@
             player.configure({
                 drm: {
                     servers: {
-                        'org.w3.clearkey': 'https://php.gohkh7.eu.org/rtmklik/key-1'
+                        'https://php.gohkh7.eu.org/rtmklik/key-1'
                     }
                 },
                 abr: {
