@@ -1,12 +1,98 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-<meta charset="UTF-8">
-    <title>Tv2</title>
-<link rel="stylesheet" href="https://ejunds.github.io/mifn-iptv/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTM TV2 (DRM 解密播放)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.1/shaka-player.ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.1/controls.css">
+    
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+            font-family: sans-serif;
+        }
+        /* 播放器容器限制 */
+        .video-container {
+            width: 100%;
+            max-width: 1280px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
-    <iframe src="https://rtm-player.glueapi.io/latest/h/1?t=1745595182" width="100%" height="680" frameborder="0" allowfullscreen="" scrolling="no" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen; geolocation; web-share; speaker-selection; screen-wake-lock; idle-detection">
-    </iframe>
+
+    <div class="video-container" data-shaka-player-container>
+        <video id="video" data-shaka-player autoplay></video>
+    </div>
+
+    <script>
+        async function initApp() {
+            // 安装 Polyfills 以确保各浏览器兼容性
+            shaka.polyfill.installAll();
+            
+            // 检查浏览器是否支持 Shaka Player
+            if (!shaka.Player.isBrowserSupported()) {
+                alert('抱歉，你的浏览器不支持 Shaka Player');
+                return;
+            }
+            
+            initPlayer();
+        }
+
+        async function initPlayer() {
+            const video = document.getElementById('video');
+            const player = new shaka.Player();
+            await player.attach(video);
+
+            // 【核心配置】：设置 ClearKey DRM 解密服务器地址
+            player.configure({
+                drm: {
+                    servers: {
+                        'org.w3.clearkey': 'https://php.gohkh7.eu.org/rtmklik/key-1'
+                    }
+                }
+            });
+
+            // 监听播放器错误
+            player.addEventListener('error', onErrorEvent);
+
+            // 👇 👇 👇 请在这里填入你实际的 m3u8 或 mpd 视频流地址 👇 👇 👇
+            const manifestUri = 'hhttps://m3u8.gohkh9.qzz.io/rtmklik/TV1.m3u8';
+
+            try {
+                // 加载视频流并尝试解密
+                await player.load(manifestUri);
+                console.log('视频加载成功，正在通过密钥服务器解密...');
+            } catch (e) {
+                onError(e);
+            }
+        }
+
+        function onErrorEvent(event) {
+            onError(event.detail);
+        }
+
+        function onError(error) {
+            console.error('播放报错:', error.code, error);
+            // 如果是在页面上显示错误，可以取消下面这行的注释
+            // alert('播放失败，错误代码: ' + error.code);
+        }
+
+        // 当网页加载完毕后启动应用
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+
 </body>
 </html>
