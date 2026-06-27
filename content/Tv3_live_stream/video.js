@@ -1,4 +1,4 @@
-const manifestUri = 'https://ngtv-live-cbj.gcdn.co/Content/DASH/Live/channel(TV3)/master.mpd';
+const manifestUri = 'http://mpd-iptv.gkh8888.qzz.io/unifi/TV3.mpd';
 
     async function init() {
       const video = document.getElementById('video');
