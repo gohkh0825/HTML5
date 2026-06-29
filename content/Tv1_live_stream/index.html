@@ -30,6 +30,13 @@
             top: 0; left: 0; width: 100vw; height: 100vh;
         }
 
+        /* 强制让 Shaka Player 动态生成的内部容器及 video 标签占满外层 100% 空间 */
+        .shaka-video-container,
+        #video {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         /* 自定义精美 UI 样式 */
         .shaka-seek-bar-container .shaka-seek-bar,
         .shaka-volume-bar-container .shaka-volume-bar {
@@ -60,7 +67,7 @@
             player.configure({
                 drm: {
                     clearKeys: {
-                        '1fe3d74e8cbc4ee0b071a64257068e38': '77ece75d9526f5beac0ab6bf1ee3bd89'
+                        '1fe3d74e8cbc4ee0b071a64257068e3双': '77ece75d9526f5beac0ab6bf1ee3bd89'
                     }
                 },
                 abr: {
