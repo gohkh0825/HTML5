@@ -1,19 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>EJALTV TV1</title>
+    <title>EJALTV - TV1 Live</title>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="no-referrer" />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.min.css" crossorigin="anonymous" />
     <style>
-        div a img { visibility: hidden; }
-        body { margin: 0; background-color: black; }
+        /* 1. 基础清理：防止全屏时出现多余的白边或滚动条 */
+        body { 
+            margin: 0; 
+            background-color: #000; 
+            color: white;
+            font-family: sans-serif;
+            overflow: hidden; 
+        }
+        
+        /* 2. UI 优化：频道标题悬浮化。原来的 <center> 标签不仅已废弃，而且会被播放器层覆盖 */
+        .channel-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10; /* 确保悬浮在视频上方 */
+            opacity: 0.7;
+            font-size: 1.5em;
+            font-weight: bold;
+            pointer-events: none; /* 让鼠标点击穿透，不影响双击全屏等操作 */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); /* 增加阴影，在亮色画面也能看清 */
+        }
+
+        /* 3. 容器布局优化 */
+        .player-container {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+        }
+
+        video {
+            width: 100%; 
+            height: 100%;
+        }
+
+        /* 保留你原有的精美 UI 样式 */
         .shaka-seek-bar-container .shaka-seek-bar,
         .shaka-volume-bar-container .shaka-volume-bar {
             background: linear-gradient(to right, #051937, #00205b, #00247e, #22229f, #510dbc);
         }
-        .shaka-video-container .material-icons-round {
-            color: #00abe2;
-        }
+        .shaka-video-container .material-icons-round { color: #00abe2; }
+        
         .shaka-spinner-path {
             stroke-dasharray: 1, 2000;
             stroke-dashoffset: 0;
@@ -27,18 +64,14 @@
             80%, 90% { stroke: #ffa700; }
         }
     </style>
-
     <script src="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/shaka-player.ui.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@latest/dist/controls.min.css" crossorigin="anonymous" />
 </head>
 <body>
 
-    <center>
-        <b><p style="color:white; opacity:0.6; font-size:1.5em;">EJALTV TV1</p></b>
-    </center>
+    <div class="channel-title">EJALTV TV1</div>
 
-    <div data-shaka-player-container style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;">
-        <video autoplay data-shaka-player poster="https://rtm-images.glueapi.io/480x0/live_channel/TV1.jpg" id="video" style="width:100%; height:100%;"></video>
+    <div class="player-container" data-shaka-player-container>
+        <video autoplay data-shaka-player poster="https://rtm-images.glueapi.io/480x0/live_channel/TV1.jpg" id="video"></video>
     </div>
 
     <script>
@@ -49,6 +82,7 @@
             const ui = video['ui'];
             const controls = ui.getControls();
             const player = controls.getPlayer();
+            
             window.player = player;
             window.ui = ui;
 
@@ -60,9 +94,9 @@
                         '1fe3d74e8cbc4ee0b071a64257068e38': '77ece75d9526f5beac0ab6bf1ee3bd89'
                     }
                 },
-            
                 abr: {
-                    defaultBandwidthEstimate: 16888,
+                    // 优化 1：原代码设为 16888 (不到 17kbps) 太低了，会导致起播画质像马赛克。改为 1Mbps 更适合电视流。
+                    defaultBandwidthEstimate: 1000000, 
                     enabled: true,
                     restrictions: {
                         minHeight: 359,
@@ -70,18 +104,18 @@
                     }
                 },
                 streaming: {
-                    bufferingGoal: 10
+                    // 优化 2：针对 IPTV 直播流的缓冲策略优化
+                    bufferingGoal: 15,     // 稍微增加目标缓冲，抵抗网络抖动
+                    rebufferingGoal: 2,    // 卡顿后只需缓冲 2 秒就恢复播放，减少无聊等待
+                    jumpLargeGaps: true    // 遇到丢包或坏帧导致的流断层，自动跳过去，防止画面永久卡死
                 },
                 manifest: {
-                    retryParameters: {
-                        maxAttempts: 3
-                    }
+                    dash: {
+                        ignoreMinBufferTime: true // 忽略 MPD 官方文件中可能存在的保守延迟要求，让直播更实时
+                    },
+                    retryParameters: { maxAttempts: 3 }
                 },
-                networking: {
-                    retryParameters: {
-                        maxAttempts: 3
-                    }
-                }
+                networking: { retryParameters: { maxAttempts: 3 } }
             });
 
             player.addEventListener('error', onPlayerErrorEvent);
@@ -89,27 +123,16 @@
 
             try {
                 await player.load(manifestUri);
-                console.log('视频已成功加载。');
+                console.log('TV1 直播流已成功加载。');
             } catch (error) {
                 onPlayerError(error);
             }
         }
 
-        function onPlayerErrorEvent(errorEvent) {
-            onPlayerError(errorEvent.detail);
-        }
-
-        function onPlayerError(error) {
-            console.error('播放器错误：', error.code, error);
-        }
-
-        function onUIErrorEvent(errorEvent) {
-            onPlayerError(errorEvent.detail);
-        }
-
-        function initFailed(errorEvent) {
-            console.error('Shaka UI 加载失败。');
-        }
+        function onPlayerErrorEvent(errorEvent) { onPlayerError(errorEvent.detail); }
+        function onPlayerError(error) { console.error('播放器错误 代码：', error.code, '详情：', error); }
+        function onUIErrorEvent(errorEvent) { onPlayerError(errorEvent.detail); }
+        function initFailed() { console.error('Shaka UI 加载失败。'); }
 
         document.addEventListener('shaka-ui-loaded', init);
         document.addEventListener('shaka-ui-load-failed', initFailed);
