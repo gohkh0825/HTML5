@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>WebHome 极简首页</title>
+  <title>Google TV 风格首页</title>
 
-  <!-- 第15章：ES5 兼容引导层（严禁使用现代语法，确保旧版 WebView 100% 执行） -->
+  <!-- ES5 兼容引导层：防旧版 Android WebView 语法报错白屏 -->
   <script>
     (function () {
       var docEl = document.documentElement;
@@ -13,33 +13,20 @@
         docEl.classList.add("fm-native");
       }
       if (!Array.from) {
-        Array.from = function (list) {
-          return Array.prototype.slice.call(list || []);
-        };
+        Array.from = function (list) { return Array.prototype.slice.call(list || []); };
       }
       if (!Array.prototype.includes) {
-        Array.prototype.includes = function (item) {
-          return this.indexOf(item) !== -1;
-        };
+        Array.prototype.includes = function (item) { return this.indexOf(item) !== -1; };
       }
       if (!String.prototype.includes) {
-        String.prototype.includes = function (str) {
-          return this.indexOf(str) !== -1;
-        };
-      }
-      if (!String.prototype.startsWith) {
-        String.prototype.startsWith = function (prefix) {
-          return this.indexOf(prefix) === 0;
-        };
+        String.prototype.includes = function (str) { return this.indexOf(str) !== -1; };
       }
       if (typeof NodeList !== "undefined" && NodeList.prototype && !NodeList.prototype.forEach) {
         NodeList.prototype.forEach = Array.prototype.forEach;
       }
       if (typeof Element !== "undefined" && !Element.prototype.replaceChildren) {
         Element.prototype.replaceChildren = function () {
-          while (this.firstChild) {
-            this.removeChild(this.firstChild);
-          }
+          while (this.firstChild) this.removeChild(this.firstChild);
           for (var i = 0; i < arguments.length; i++) {
             var node = arguments[i];
             this.appendChild(typeof node === "string" ? document.createTextNode(node) : node);
@@ -56,58 +43,43 @@
         };
       }
 
-      // 特性检测与 CSS 降级类
+      // 特性检测降级类
       try {
-        var testFlex = document.createElement("div");
-        testFlex.style.display = "flex";
-        testFlex.style.flexDirection = "column";
-        testFlex.style.gap = "10px";
-        testFlex.style.position = "absolute";
-        testFlex.style.visibility = "hidden";
-        testFlex.appendChild(document.createElement("div"));
-        testFlex.appendChild(document.createElement("div"));
-        document.head.appendChild(testFlex);
-        var hasGap = testFlex.scrollHeight >= 10;
-        document.head.removeChild(testFlex);
-        if (!hasGap) docEl.classList.add("no-layout-gap");
-      } catch (e) {
-        docEl.classList.add("no-layout-gap");
-      }
+        var tf = document.createElement("div");
+        tf.style.display = "flex";
+        tf.style.flexDirection = "column";
+        tf.style.gap = "10px";
+        tf.style.position = "absolute";
+        tf.style.visibility = "hidden";
+        tf.appendChild(document.createElement("div"));
+        tf.appendChild(document.createElement("div"));
+        document.head.appendChild(tf);
+        if (tf.scrollHeight < 10) docEl.classList.add("no-layout-gap");
+        document.head.removeChild(tf);
+      } catch (e) { docEl.classList.add("no-layout-gap"); }
 
       try {
-        var supportsClamp = window.CSS && CSS.supports && CSS.supports("width", "clamp(10px, 2vw, 20px)");
-        if (!supportsClamp) docEl.classList.add("no-css-functions");
-      } catch (e) {
-        docEl.classList.add("no-css-functions");
-      }
-
-      try {
-        var testRatio = document.createElement("div");
-        testRatio.style.width = "100px";
-        testRatio.style.aspectRatio = "16 / 9";
-        testRatio.style.position = "absolute";
-        testRatio.style.visibility = "hidden";
-        document.head.appendChild(testRatio);
-        var ratioOk = testRatio.offsetHeight > 40 && testRatio.offsetHeight < 70;
-        document.head.removeChild(testRatio);
-        if (!ratioOk) docEl.classList.add("no-aspect-ratio");
-      } catch (e) {
-        docEl.classList.add("no-aspect-ratio");
-      }
+        var tr = document.createElement("div");
+        tr.style.width = "100px";
+        tr.style.aspectRatio = "16 / 9";
+        tr.style.position = "absolute";
+        tr.style.visibility = "hidden";
+        document.head.appendChild(tr);
+        if (tr.offsetHeight <= 40 || tr.offsetHeight >= 70) docEl.classList.add("no-aspect-ratio");
+        document.head.removeChild(tr);
+      } catch (e) { docEl.classList.add("no-aspect-ratio"); }
     })();
   </script>
 
   <style>
     :root {
-      --panel-rgb: 38, 44, 52;
-      --panel: rgba(var(--panel-rgb), 0.62);
+      --panel-rgb: 22, 26, 33;
+      --panel: rgba(var(--panel-rgb), 0.65);
       --panel-soft: rgba(var(--panel-rgb), 0.45);
-      --panel-strong: rgba(var(--panel-rgb), 0.85);
-      --line: rgba(255, 255, 255, 0.16);
-      --line-focus: rgba(255, 255, 255, 0.88);
-      --text: #f3f6f9;
-      --text-dim: rgba(243, 246, 249, 0.68);
-      --accent: #38bdf8;
+      --panel-pill: rgba(255, 255, 255, 0.12);
+      --text: #f8fafc;
+      --text-dim: rgba(248, 250, 252, 0.72);
+      --accent: #a8c7fa; /* Google TV 标志性浅蓝强调色 */
       --safe-top: var(--fm-safe-top, 0px);
       --safe-top: max(var(--fm-safe-top, 0px), env(safe-area-inset-top, 0px));
       --safe-bottom: var(--fm-safe-bottom, 0px);
@@ -129,486 +101,560 @@
       min-height: 100%;
       background: transparent;
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       overflow-x: hidden;
     }
 
-    /* 电脑浏览器预览时的兜底深色背景 */
     html:not(.fm-native),
     html:not(.fm-native) body {
-      background: #1b2028;
+      background: #0f1115;
+    }
+
+    /* 背景暗角渐层：让壁纸透出的同时保证左侧与底部文字高对比度 */
+    .ambient-scrim {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(12, 14, 18, 0.58) 0%,
+        rgba(12, 14, 18, 0.25) 42%,
+        rgba(12, 14, 18, 0.86) 100%
+      );
+      z-index: 0;
     }
 
     .app {
+      position: relative;
+      z-index: 1;
       min-height: 100vh;
       min-height: var(--fm-web-height, 100vh);
-      padding-top: calc(var(--safe-top) + 18px);
-      padding-bottom: calc(var(--safe-bottom) + 28px);
-      padding-left: calc(var(--safe-left) + 20px);
-      padding-right: calc(var(--safe-right) + 20px);
-      max-width: 1280px;
-      margin: 0 auto;
-    }
-
-    /* TV 大屏增加安全边距防老电视裁切 */
-    html.tv-mode .app {
-      padding-top: 32px;
-      padding-bottom: 36px;
-      padding-left: 48px;
-      padding-right: 48px;
-    }
-
-    /* 顶部栏：状态 + 快捷入口 */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .brand {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      padding-top: calc(var(--safe-top) + 16px);
+      padding-bottom: calc(var(--safe-bottom) + 24px);
+      padding-left: calc(var(--safe-left) + 20px);
+      padding-right: calc(var(--safe-right) + 20px);
     }
 
-    .brand-title {
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+    html.tv-mode .app {
+      padding-top: 28px;
+      padding-bottom: 32px;
+      padding-left: 52px;
+      padding-right: 52px;
     }
 
-    .brand-sub {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 4px;
-    }
-
-    html.tv-mode .brand-title { font-size: 26px; }
-    html.tv-mode .brand-sub { font-size: 15px; }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    html.no-layout-gap .nav-actions > * + * {
-      margin-left: 10px;
-    }
-
-    .btn {
-      appearance: none;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: var(--text);
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      outline: none;
-      transition: transform 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
-      white-space: nowrap;
-      min-height: 44px;
-    }
-
-    html.tv-mode .btn {
-      padding: 12px 22px;
-      font-size: 18px;
-      border-radius: 14px;
-    }
-
-    .btn:active {
-      background: var(--panel-strong);
-      transform: scale(0.97);
-    }
-
-    .btn:focus {
-      background: var(--panel-strong);
-      border-color: var(--line-focus);
-      transform: translateY(-1px) scale(1.03);
-    }
-
-    .btn-primary {
-      background: rgba(56, 189, 248, 0.25);
-      border-color: rgba(56, 189, 248, 0.55);
-    }
-
-    .btn-primary:focus {
-      background: rgba(56, 189, 248, 0.42);
-      border-color: #7dd3fc;
-    }
-
-    /* 搜索与直链输入区 */
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 6px 8px 6px 16px;
-      margin-bottom: 28px;
-      contain: layout style;
-    }
-
-    html.no-layout-gap .search-box > * + * {
-      margin-left: 10px;
-    }
-
-    .search-input {
-      flex: 1;
-      width: 100%;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 15px;
-      padding: 10px 8px;
-      outline: none;
-    }
-
-    html.tv-mode .search-input {
-      font-size: 20px;
-      padding: 12px 10px;
-    }
-
-    .search-input::placeholder {
-      color: var(--text-dim);
-    }
-
-    .search-input:focus {
-      border-color: var(--line-focus);
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    /* 区块标题 */
-    .section-header {
+    /* 1. Google TV 顶部药丸导航栏 */
+    .gtv-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-
-    html.tv-mode .section-title {
-      font-size: 22px;
-    }
-
-    .section-hint {
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
-    /* 继续观看横向轨道 */
-    .history-rail {
+    .gtv-nav-group {
       display: flex;
+      align-items: center;
+      gap: 8px;
       overflow-x: auto;
-      gap: 14px;
-      padding: 4px 2px 14px 2px;
-      margin-bottom: 24px;
-      -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      padding: 4px 2px;
     }
 
-    .history-rail::-webkit-scrollbar {
+    .gtv-nav-group::-webkit-scrollbar {
       display: none;
     }
 
-    html.no-layout-gap .history-rail > * + * {
-      margin-left: 14px;
+    html.no-layout-gap .gtv-nav-group > * + * {
+      margin-left: 8px;
     }
 
-    .history-card {
-      flex: 0 0 132px;
-      width: 132px;
+    .gtv-pill {
+      appearance: none;
+      border: 2px solid transparent;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      outline: none;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      transition: background-color 0.14s ease, color 0.14s ease, transform 0.14s ease;
+    }
+
+    html.tv-mode .gtv-pill {
+      font-size: 18px;
+      padding: 10px 22px;
+      min-height: 46px;
+    }
+
+    .gtv-pill.active {
+      background: var(--panel-pill);
+      color: var(--text);
+    }
+
+    /* Google TV 标志性纯白高对比焦点胶囊 */
+    .gtv-pill:focus,
+    .gtv-pill:active {
+      background: #f8fafc;
+      color: #0f1115;
+      transform: scale(1.04);
+    }
+
+    .gtv-icon-btn {
+      padding: 8px 12px;
+    }
+
+    html.tv-mode .gtv-icon-btn {
+      padding: 10px 14px;
+    }
+
+    .gtv-status-badge {
+      font-size: 12px;
+      color: var(--text-dim);
       background: var(--panel-soft);
-      border: 1px solid var(--line);
-      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 6px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      max-width: 240px;
       overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    html.tv-mode .gtv-status-badge {
+      font-size: 15px;
+      padding: 8px 18px;
+    }
+
+    /* 内联展开搜索栏 */
+    .gtv-search-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(18, 22, 29, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      padding: 6px 8px 6px 20px;
+      margin-bottom: 18px;
+      max-width: 680px;
+    }
+
+    .gtv-search-bar.open {
+      display: flex;
+    }
+
+    .gtv-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      padding: 8px 4px;
+    }
+
+    html.tv-mode .gtv-search-input {
+      font-size: 19px;
+    }
+
+    .gtv-search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* 2. Hero 焦点舞台区 */
+    .gtv-hero {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-height: 210px;
+      max-width: 680px;
+      padding: 16px 4px 24px 4px;
+    }
+
+    html.tv-mode .gtv-hero {
+      min-height: 250px;
+      padding: 20px 4px 28px 4px;
+    }
+
+    .hero-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    html.tv-mode .hero-eyebrow {
+      font-size: 15px;
+    }
+
+    .hero-title {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 10px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    html.tv-mode .hero-title {
+      font-size: 40px;
+    }
+
+    .hero-meta {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    html.tv-mode .hero-meta {
+      font-size: 18px;
+      margin-bottom: 22px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    html.no-layout-gap .hero-actions > * + * {
+      margin-left: 12px;
+    }
+
+    .hero-btn {
+      appearance: none;
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.16);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      outline: none;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.14s ease, background-color 0.14s ease;
+    }
+
+    html.tv-mode .hero-btn {
+      font-size: 18px;
+      padding: 12px 28px;
+      min-height: 50px;
+    }
+
+    .hero-btn.primary {
+      background: rgba(168, 199, 250, 0.28);
+      color: #e8f0fe;
+    }
+
+    .hero-btn:focus,
+    .hero-btn:active {
+      background: #f8fafc;
+      color: #0f1115;
+      transform: scale(1.04);
+    }
+
+    /* 3. 继续观看横向宽屏轨道 (Google TV 16:9 风格) */
+    .gtv-row {
+      margin-top: 8px;
+    }
+
+    .row-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    html.tv-mode .row-title {
+      font-size: 21px;
+      margin-bottom: 14px;
+    }
+
+    .gtv-rail {
+      display: flex;
+      overflow-x: auto;
+      gap: 16px;
+      padding: 6px 4px 14px 4px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gtv-rail::-webkit-scrollbar {
+      display: none;
+    }
+
+    html.no-layout-gap .gtv-rail > * + * {
+      margin-left: 16px;
+    }
+
+    .gtv-card {
+      flex: 0 0 210px;
+      width: 210px;
       cursor: pointer;
       outline: none;
       contain: layout style;
-      transition: transform 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
+      transition: transform 0.14s ease;
     }
 
-    html.tv-mode .history-card {
-      flex: 0 0 176px;
-      width: 176px;
-      border-radius: 14px;
+    html.tv-mode .gtv-card {
+      flex: 0 0 264px;
+      width: 264px;
     }
 
-    .history-card:focus {
-      border-color: var(--line-focus);
-      background: var(--panel-strong);
-      transform: translateY(-2px) scale(1.03);
-    }
-
-    .poster-wrap {
+    .gtv-thumb {
       position: relative;
       width: 100%;
-      aspect-ratio: 2 / 3;
-      background: rgba(0, 0, 0, 0.28);
+      aspect-ratio: 16 / 9;
+      border-radius: 14px;
       overflow: hidden;
+      background: var(--panel);
+      border: 3px solid transparent;
+      transition: border-color 0.14s ease;
     }
 
-    html.no-aspect-ratio .poster-wrap {
+    html.no-aspect-ratio .gtv-thumb {
       height: 0;
-      padding-top: 150%;
+      padding-top: 56.25%;
     }
 
-    .poster-img {
+    .gtv-card:focus {
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .gtv-card:focus .gtv-thumb {
+      border-color: #ffffff;
+    }
+
+    .gtv-thumb-bg {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
+      opacity: 0.45;
+      transform: scale(1.12);
     }
 
-    .poster-fallback {
+    .gtv-thumb-poster {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      bottom: 10px;
+      width: auto;
+      aspect-ratio: 2 / 3;
+      border-radius: 6px;
+      object-fit: cover;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .gtv-thumb-overlay {
       position: absolute;
       top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.35);
-      padding: 12px;
-      text-align: center;
-    }
-
-    .badge-remark {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: rgba(0, 0, 0, 0.68);
-      color: #fff;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 6px;
-      max-width: 85%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .progress-bar {
-      position: absolute;
-      left: 0;
       right: 0;
       bottom: 0;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.2);
+      left: 0;
+      background: linear-gradient(90deg, rgba(15, 17, 21, 0.35) 0%, rgba(15, 17, 21, 0.85) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 10px 12px 12px 76px;
     }
 
-    .progress-fill {
-      height: 100%;
-      background: var(--accent);
+    html.tv-mode .gtv-thumb-overlay {
+      padding-left: 94px;
     }
 
-    .card-info {
-      padding: 8px 10px 10px 10px;
+    .gtv-thumb-overlay.no-poster {
+      padding-left: 14px;
     }
 
-    .card-title {
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 1.3;
+    .gtv-card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      line-height: 1.25;
     }
 
-    html.tv-mode .card-title {
-      font-size: 16px;
+    html.tv-mode .gtv-card-name {
+      font-size: 17px;
     }
 
-    .card-sub {
+    .gtv-card-ep {
       font-size: 11px;
-      color: var(--text-dim);
+      color: var(--accent);
       margin-top: 4px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    html.tv-mode .card-sub {
-      font-size: 13px;
+    html.tv-mode .gtv-card-ep {
+      font-size: 14px;
     }
 
-    /* 快捷功能网格 */
-    .quick-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+    .gtv-progress {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.22);
     }
 
-    .quick-item {
-      flex: 1 1 calc(25% - 12px);
-      min-width: 140px;
+    .gtv-progress-fill {
+      height: 100%;
+      background: #ffffff;
+    }
+
+    /* 快捷功能卡片（无观看记录或位于轨道末尾） */
+    .gtv-shortcut-card {
+      flex: 0 0 160px;
+      width: 160px;
+      aspect-ratio: 16 / 9;
       background: var(--panel);
-      border: 1px solid var(--line);
+      border: 3px solid rgba(255, 255, 255, 0.14);
       border-radius: 14px;
-      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       outline: none;
-      text-align: left;
       color: var(--text);
-      contain: layout style;
+      padding: 12px;
+      text-align: center;
       transition: transform 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
     }
 
-    html.no-layout-gap .quick-item {
-      margin: 0 12px 12px 0;
+    html.tv-mode .gtv-shortcut-card {
+      flex: 0 0 200px;
+      width: 200px;
     }
 
-    .quick-item:active {
-      background: var(--panel-strong);
-      transform: scale(0.98);
+    .gtv-shortcut-card:focus {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px) scale(1.04);
     }
 
-    .quick-item:focus {
-      background: var(--panel-strong);
-      border-color: var(--line-focus);
-      transform: translateY(-2px) scale(1.02);
-    }
-
-    .quick-title {
-      font-size: 15px;
+    .shortcut-label {
+      font-size: 14px;
       font-weight: 600;
-      margin-bottom: 4px;
     }
 
-    .quick-desc {
-      font-size: 12px;
-      color: var(--text-dim);
+    html.tv-mode .shortcut-label {
+      font-size: 17px;
     }
 
-    html.tv-mode .quick-title { font-size: 19px; }
-    html.tv-mode .quick-desc { font-size: 14px; }
-
-    .empty-state {
-      background: var(--panel-soft);
-      border: 1px dashed var(--line);
-      border-radius: 14px;
-      padding: 22px 16px;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 13px;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 600px) {
-      .quick-item {
-        flex: 1 1 calc(50% - 12px);
+    @media (max-width: 640px) {
+      .gtv-status-badge {
+        display: none;
       }
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .nav-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .nav-actions .btn {
-        flex: 1;
-        text-align: center;
-        padding: 10px 8px;
+      .hero-title {
+        font-size: 24px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="app" id="appRoot">
-    <!-- 顶部栏 -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-title" id="siteTitle">影视中心</div>
-        <div class="brand-sub" id="configDesc">正在连接原生环境...</div>
-      </div>
-      <nav class="nav-actions" aria-label="快捷导航">
-        <button type="button" class="btn focusable" data-nav="top" id="btnVod">点播</button>
-        <button type="button" class="btn focusable" data-nav="top" id="btnLive">直播</button>
-        <button type="button" class="btn focusable" data-nav="top" id="btnKeep">收藏</button>
-        <button type="button" class="btn focusable" data-nav="top" id="btnSetting">设置</button>
-      </nav>
-    </header>
+  <div class="ambient-scrim"></div>
 
-    <!-- 搜索与直链播放框 -->
-    <section class="search-box" aria-label="搜索或直链播放">
-      <input
-        type="text"
-        class="search-input focusable"
-        id="searchInput"
-        placeholder="输入片名搜索，或粘贴网盘 / 磁力 / 视频直链"
-        autocomplete="off"
-      />
-      <button type="button" class="btn btn-primary focusable" id="btnSearch">前往</button>
+  <div class="app">
+    <!-- 顶部药丸导航 -->
+    <div>
+      <header class="gtv-topbar">
+        <nav class="gtv-nav-group" aria-label="主导航">
+          <button type="button" class="gtv-pill gtv-icon-btn focusable" id="navSearch" aria-label="搜索">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          <button type="button" class="gtv-pill active focusable" id="navHome">为你推荐</button>
+          <button type="button" class="gtv-pill focusable" id="navVod">点播库</button>
+          <button type="button" class="gtv-pill focusable" id="navLive">直播</button>
+          <button type="button" class="gtv-pill focusable" id="navKeep">媒体库</button>
+          <button type="button" class="gtv-pill focusable" id="navSetting">设置</button>
+        </nav>
+        <div class="gtv-status-badge" id="configBadge">正在连接...</div>
+      </header>
+
+      <!-- 按搜索展开的药丸输入框 -->
+      <div class="gtv-search-bar" id="searchBar">
+        <input
+          type="text"
+          class="gtv-search-input focusable"
+          id="searchInput"
+          placeholder="搜索片名，或粘贴网盘 / 磁力 / 视频直链..."
+          autocomplete="off"
+        />
+        <button type="button" class="gtv-pill active focusable" id="btnSearchGo">搜索 / 播放</button>
+      </div>
+    </div>
+
+    <!-- 中部沉浸式 Hero 焦点区 -->
+    <section class="gtv-hero" aria-live="polite">
+      <div class="hero-eyebrow" id="heroEyebrow">GOOGLE TV · 极简启动台</div>
+      <h1 class="hero-title" id="heroTitle">准备好开始观影了吗？</h1>
+      <div class="hero-meta" id="heroMeta">移动焦点预览最近观看进度，或点击下方按钮进入点播与直播</div>
+      <div class="hero-actions">
+        <button type="button" class="hero-btn primary focusable" id="heroPrimaryBtn">
+          <span>▶ 立即播放</span>
+        </button>
+        <button type="button" class="hero-btn focusable" id="heroSecondaryBtn">
+          <span>切换点播源</span>
+        </button>
+      </div>
     </section>
 
-    <!-- 继续观看 -->
-    <section id="historySection">
-      <div class="section-header">
-        <div class="section-title">继续观看</div>
-        <div class="section-hint" id="historyCount"></div>
-      </div>
-      <div class="history-rail" id="historyRail"></div>
-      <div class="empty-state" id="historyEmpty" style="display: none;">
-        暂无近期观看记录，搜索片名或点击下方入口开始观影
-      </div>
-    </section>
-
-    <!-- 快捷入口 -->
-    <section>
-      <div class="section-header">
-        <div class="section-title">常用入口</div>
-      </div>
-      <div class="quick-grid" id="quickGrid">
-        <button type="button" class="quick-item focusable" data-action="vod">
-          <div class="quick-title">原生站点分类</div>
-          <div class="quick-desc">切换并浏览已配置的点播源</div>
-        </button>
-        <button type="button" class="quick-item focusable" data-action="live">
-          <div class="quick-title">电视直播</div>
-          <div class="quick-desc">进入 M3U / EPG 直播频道</div>
-        </button>
-        <button type="button" class="quick-item focusable" data-action="keep">
-          <div class="quick-title">我的收藏</div>
-          <div class="quick-desc">查看已收藏的影视与剧集</div>
-        </button>
-        <button type="button" class="quick-item focusable" data-action="reload">
-          <div class="quick-title">刷新首页</div>
-          <div class="quick-desc">重新同步最近观看与状态</div>
-        </button>
-      </div>
+    <!-- 底部继续观看横向轨道 -->
+    <section class="gtv-row">
+      <div class="row-title" id="rowTitle">继续观看</div>
+      <div class="gtv-rail" id="gtvRail"></div>
     </section>
   </div>
 
-  <!-- 业务代码严格遵循 ES2017 基线（无 ?. / ?? / ||= 等语法） -->
+  <!-- 业务代码严格遵循 ES2017 基线 -->
   <script>
     (function () {
       "use strict";
 
       var state = {
         isTv: false,
-        fmReady: false,
         historyItems: [],
+        activeHeroItem: null,
         scrollRaf: 0
       };
 
-      // 1. 设备形态判定（优先 window.fongmiClient）
+      // 1. 设备形态识别
       function detectClientMode() {
         var client = window.fongmiClient || {};
         var isTv = false;
@@ -624,42 +670,76 @@
         document.documentElement.classList.toggle("tv-mode", isTv);
         document.documentElement.classList.toggle("mobile-mode", !isTv);
 
-        // TV 端默认给输入框加 readonly，防止方向键经过时误弹输入法
         var input = document.getElementById("searchInput");
         if (input && isTv) {
           input.setAttribute("readonly", "readonly");
         }
       }
 
-      // 2. 等待 Native SDK 就绪
+      // 2. 等待 SDK
       function whenFm() {
-        if (window.fm) {
-          state.fmReady = true;
-          return Promise.resolve(window.fm);
-        }
+        if (window.fm) return Promise.resolve(window.fm);
         return new Promise(function (resolve) {
-          var timer = setTimeout(function () {
-            resolve(window.fm || null);
-          }, 1500);
+          var timer = setTimeout(function () { resolve(window.fm || null); }, 1500);
           window.addEventListener("fmsdk", function () {
             clearTimeout(timer);
-            state.fmReady = true;
             resolve(window.fm);
           }, { once: true });
         });
       }
 
-      // 3. 安全解析 history key 中的 siteKey 与 vodId
       function parseHistoryKey(key) {
         if (!key || typeof key !== "string") return { siteKey: "", vodId: "" };
         var parts = key.split("@@@");
-        return {
-          siteKey: parts[0] || "",
-          vodId: parts[1] || ""
-        };
+        return { siteKey: parts[0] || "", vodId: parts[1] || "" };
       }
 
-      // 4. 识别输入内容是普通搜索词还是网盘/磁力/直链
+      // 3. 格式化毫秒进度
+      function formatDuration(ms) {
+        if (!ms || ms <= 0) return "";
+        var totalSec = Math.floor(ms / 1000);
+        var min = Math.floor(totalSec / 60);
+        var hour = Math.floor(min / 60);
+        min = min % 60;
+        if (hour > 0) return hour + " 小时 " + min + " 分钟";
+        return min + " 分钟";
+      }
+
+      // 4. 更新 Hero 舞台信息（焦点联动核心）
+      function updateHero(item) {
+        var eyebrow = document.getElementById("heroEyebrow");
+        var title = document.getElementById("heroTitle");
+        var meta = document.getElementById("heroMeta");
+        var primaryBtn = document.getElementById("heroPrimaryBtn");
+
+        state.activeHeroItem = item || null;
+
+        if (!item) {
+          eyebrow.textContent = "GOOGLE TV · 极简启动台";
+          title.textContent = "发现精彩影视与直播";
+          meta.textContent = "支持聚合搜索、网盘链接直达与多端历史续播";
+          primaryBtn.textContent = "打开点播分类";
+          return;
+        }
+
+        eyebrow.textContent = "继续观看 · " + (item.vodFlag || "最近记录");
+        title.textContent = item.vodName || "未知影片";
+
+        var metaParts = [];
+        if (item.vodRemarks) metaParts.push(item.vodRemarks);
+        if (item.position > 0 && item.duration > 0) {
+          var remain = item.duration - item.position;
+          if (remain > 60000) {
+            metaParts.push("还剩 " + formatDuration(remain));
+          } else {
+            metaParts.push("即将看完");
+          }
+        }
+        meta.textContent = metaParts.length > 0 ? metaParts.join("  ·  ") : "点击继续从上次位置播放";
+        primaryBtn.textContent = "▶ 继续观看";
+      }
+
+      // 5. 识别链接类型（搜索词 / 网盘 / 磁力 / 直链）
       function detectLinkType(text) {
         var lower = text.toLowerCase();
         if (lower.indexOf("magnet:?") === 0) return "magnet";
@@ -682,18 +762,15 @@
         return "keyword";
       }
 
-      // 5. 执行搜索或直链播放
-      async function handleQuerySubmit() {
+      async function handleSearchSubmit() {
         var input = document.getElementById("searchInput");
         var raw = input ? input.value.trim() : "";
-        if (!raw) {
-          if (input) input.focus();
-          return;
-        }
+        if (!raw) return;
+
         var fm = await whenFm();
         if (!fm) return;
-
         var kind = detectLinkType(raw);
+
         try {
           if (kind === "keyword") {
             await fm.search(raw, { direct: true });
@@ -703,195 +780,211 @@
             if (/\.mpd(\?|$)/i.test(raw)) opts.format = "dash";
             await fm.play(raw, raw, opts);
           } else {
-            await fm.pan.play({
-              type: kind,
-              url: raw,
-              title: raw
-            });
+            await fm.pan.play({ type: kind, url: raw, title: raw });
           }
-        } catch (err) {
-          if (fm.ext && fm.ext.toast) {
-            fm.ext.toast("操作失败: " + (err && err.message ? err.message : "未知错误"));
-          }
+        } catch (e) {
+          if (fm.ext && fm.ext.toast) fm.ext.toast("操作失败");
         }
       }
 
-      // 6. 加载基础信息与继续观看列表
-      async function loadDashboardData() {
-        var fm = await whenFm();
-        var siteTitleEl = document.getElementById("siteTitle");
-        var configDescEl = document.getElementById("configDesc");
-
-        if (!fm) {
-          configDescEl.textContent = "浏览器预览模式";
-          renderHistory([]);
-          return;
-        }
-
-        // 并行读取站点与配置信息
-        Promise.all([
-          fm.site().catch(function () { return {}; }),
-          fm.config().catch(function () { return {}; }),
-          fm.history().catch(function () { return []; })
-        ]).then(function (results) {
-          var siteInfo = results[0] || {};
-          var configInfo = results[1] || {};
-          var historyList = Array.isArray(results[2]) ? results[2] : [];
-
-          if (siteInfo.name) {
-            siteTitleEl.textContent = siteInfo.name;
-          }
-          configDescEl.textContent = configInfo.desc ? ("当前接口：" + configInfo.desc) : "已连接原生服务";
-
-          // 过滤误触记录（观看超过 15 秒，或无时长信息的有效记录）
-          var validHistory = historyList.filter(function (item) {
-            if (!item || !item.vodName) return false;
-            if (typeof item.position === "number" && item.position > 0 && item.position < 15000) {
-              return false;
-            }
-            return true;
-          }).slice(0, 15);
-
-          state.historyItems = validHistory;
-          renderHistory(validHistory, fm);
-        });
-      }
-
-      // 7. 渲染继续观看横向卡片
-      function renderHistory(items, fm) {
-        var rail = document.getElementById("historyRail");
-        var emptyEl = document.getElementById("historyEmpty");
-        var countEl = document.getElementById("historyCount");
-
-        if (!items || items.length === 0) {
-          rail.style.display = "none";
-          emptyEl.style.display = "block";
-          countEl.textContent = "";
-          return;
-        }
-
-        rail.style.display = "flex";
-        emptyEl.style.display = "none";
-        countEl.textContent = items.length + " 项";
-
-        var frag = document.createDocumentFragment();
-        for (var i = 0; i < items.length; i++) {
-          (function (item, idx) {
-            var card = document.createElement("div");
-            card.className = "history-card focusable";
-            card.setAttribute("tabindex", "0");
-            card.setAttribute("role", "button");
-            card.setAttribute("data-card-index", String(idx));
-
-            var posterWrap = document.createElement("div");
-            posterWrap.className = "poster-wrap";
-
-            var fallback = document.createElement("div");
-            fallback.className = "poster-fallback";
-            fallback.textContent = item.vodName ? item.vodName.charAt(0) : "影";
-            posterWrap.appendChild(fallback);
-
-            if (item.vodPic) {
-              var img = document.createElement("img");
-              img.className = "poster-img";
-              img.setAttribute("loading", idx < 5 ? "eager" : "lazy");
-              img.setAttribute("decoding", "async");
-              img.alt = item.vodName || "";
-              img.src = fm && fm.res ? fm.res(item.vodPic) : item.vodPic;
-              img.onerror = function () {
-                this.style.display = "none";
-              };
-              posterWrap.appendChild(img);
-            }
-
-            if (item.vodRemarks) {
-              var badge = document.createElement("div");
-              badge.className = "badge-remark";
-              badge.textContent = item.vodRemarks;
-              posterWrap.appendChild(badge);
-            }
-
-            if (item.position > 0 && item.duration > 0) {
-              var pct = Math.min(100, Math.max(2, Math.round((item.position / item.duration) * 100)));
-              var bar = document.createElement("div");
-              bar.className = "progress-bar";
-              var fill = document.createElement("div");
-              fill.className = "progress-fill";
-              fill.style.width = pct + "%";
-              bar.appendChild(fill);
-              posterWrap.appendChild(bar);
-            }
-
-            var info = document.createElement("div");
-            info.className = "card-info";
-
-            var title = document.createElement("div");
-            title.className = "card-title";
-            title.textContent = item.vodName || "未知影片";
-
-            var sub = document.createElement("div");
-            sub.className = "card-sub";
-            sub.textContent = item.vodFlag || "点击继续播放";
-
-            info.appendChild(title);
-            info.appendChild(sub);
-            card.appendChild(posterWrap);
-            card.appendChild(info);
-
-            card.addEventListener("click", function () {
-              openHistoryItem(item);
-            });
-
-            frag.appendChild(card);
-          })(items[i], i);
-        }
-
-        rail.replaceChildren(frag);
-      }
-
-      // 8. 点击继续观看记录（兼容普通 CSP 站点与 push_agent 推送记录）
-      async function openHistoryItem(item) {
+      async function playHistoryItem(item) {
         var fm = await whenFm();
         if (!fm) return;
+        if (!item) {
+          await fm.openVod();
+          return;
+        }
         var parsed = parseHistoryKey(item.key);
-        var siteKey = parsed.siteKey;
-        var vodId = parsed.vodId;
-
         try {
-          if (siteKey && vodId) {
-            await fm.vod(siteKey, vodId, item.vodName || "", item.vodPic || "");
+          if (parsed.siteKey && parsed.vodId) {
+            await fm.vod(parsed.siteKey, parsed.vodId, item.vodName || "", item.vodPic || "");
           } else if (item.episodeUrl) {
             await fm.play(item.episodeUrl, item.vodName || "", { pic: item.vodPic || "" });
           } else if (item.vodName) {
             await fm.search(item.vodName, { direct: true, pic: item.vodPic || "" });
           }
-        } catch (err) {
-          if (fm.ext && fm.ext.toast) {
-            fm.ext.toast("打开失败，请尝试重新搜索");
-          }
+        } catch (e) {
+          if (fm.ext && fm.ext.toast) fm.ext.toast("打开失败");
         }
       }
 
-      // 9. 遥控器焦点平滑滚动合帧（第22.6节性能优化）
+      // 6. 渲染 Google TV 16:9 横向卡片轨道
+      function renderRail(items, fm) {
+        var rail = document.getElementById("gtvRail");
+        var rowTitle = document.getElementById("rowTitle");
+        var frag = document.createDocumentFragment();
+
+        if (items && items.length > 0) {
+          rowTitle.textContent = "继续观看";
+          updateHero(items[0]);
+
+          for (var i = 0; i < items.length; i++) {
+            (function (item, idx) {
+              var card = document.createElement("div");
+              card.className = "gtv-card focusable";
+              card.setAttribute("tabindex", "0");
+              card.setAttribute("role", "button");
+
+              var thumb = document.createElement("div");
+              thumb.className = "gtv-thumb";
+
+              var hasPic = Boolean(item.vodPic);
+              var resolvedPic = hasPic ? (fm && fm.res ? fm.res(item.vodPic) : item.vodPic) : "";
+
+              if (hasPic) {
+                var bgImg = document.createElement("img");
+                bgImg.className = "gtv-thumb-bg";
+                bgImg.setAttribute("loading", idx < 4 ? "eager" : "lazy");
+                bgImg.src = resolvedPic;
+                bgImg.onerror = function () { this.style.display = "none"; };
+                thumb.appendChild(bgImg);
+
+                var posterImg = document.createElement("img");
+                posterImg.className = "gtv-thumb-poster";
+                posterImg.setAttribute("loading", idx < 4 ? "eager" : "lazy");
+                posterImg.src = resolvedPic;
+                posterImg.onerror = function () {
+                  this.style.display = "none";
+                  overlay.classList.add("no-poster");
+                };
+                thumb.appendChild(posterImg);
+              }
+
+              var overlay = document.createElement("div");
+              overlay.className = "gtv-thumb-overlay" + (hasPic ? "" : " no-poster");
+
+              var nameEl = document.createElement("div");
+              nameEl.className = "gtv-card-name";
+              nameEl.textContent = item.vodName || "未知影片";
+
+              var epEl = document.createElement("div");
+              epEl.className = "gtv-card-ep";
+              epEl.textContent = item.vodRemarks || item.vodFlag || "点击继续";
+
+              overlay.appendChild(nameEl);
+              overlay.appendChild(epEl);
+              thumb.appendChild(overlay);
+
+              if (item.position > 0 && item.duration > 0) {
+                var pct = Math.min(100, Math.max(3, Math.round((item.position / item.duration) * 100)));
+                var bar = document.createElement("div");
+                bar.className = "gtv-progress";
+                var fill = document.createElement("div");
+                fill.className = "gtv-progress-fill";
+                fill.style.width = pct + "%";
+                bar.appendChild(fill);
+                thumb.appendChild(bar);
+              }
+
+              card.appendChild(thumb);
+
+              // 焦点与悬停同步更新上方 Hero 舞台
+              card.addEventListener("focus", function () { updateHero(item); });
+              card.addEventListener("mouseenter", function () { updateHero(item); });
+              card.addEventListener("click", function () { playHistoryItem(item); });
+
+              frag.appendChild(card);
+            })(items[i], i);
+          }
+        } else {
+          rowTitle.textContent = "快速开始";
+          updateHero(null);
+        }
+
+        // 轨道末尾追加快捷功能卡片
+        var shortcuts = [
+          { label: "浏览全部站点", action: "vod" },
+          { label: "进入电视直播", action: "live" },
+          { label: "我的收藏夹", action: "keep" }
+        ];
+
+        for (var j = 0; j < shortcuts.length; j++) {
+          (function (sc) {
+            var scCard = document.createElement("div");
+            scCard.className = "gtv-shortcut-card focusable";
+            scCard.setAttribute("tabindex", "0");
+            scCard.setAttribute("role", "button");
+
+            var lbl = document.createElement("div");
+            lbl.className = "shortcut-label";
+            lbl.textContent = sc.label;
+            scCard.appendChild(lbl);
+
+            scCard.addEventListener("click", function () {
+              whenFm().then(function (fm) {
+                if (!fm) return;
+                if (sc.action === "vod") fm.openVod();
+                else if (sc.action === "live") fm.openLive();
+                else if (sc.action === "keep") fm.openKeep();
+              });
+            });
+
+            frag.appendChild(scCard);
+          })(shortcuts[j]);
+        }
+
+        rail.replaceChildren(frag);
+      }
+
+      // 7. 加载数据
+      async function initData() {
+        var fm = await whenFm();
+        var badge = document.getElementById("configBadge");
+
+        if (!fm) {
+          badge.textContent = "浏览器预览";
+          renderRail([], null);
+          return;
+        }
+
+        Promise.all([
+          fm.config().catch(function () { return {}; }),
+          fm.history().catch(function () { return []; })
+        ]).then(function (res) {
+          var cfg = res[0] || {};
+          var hist = Array.isArray(res[1]) ? res[1] : [];
+
+          badge.textContent = cfg.desc || "已连接";
+
+          var valid = hist.filter(function (item) {
+            if (!item || !item.vodName) return false;
+            if (typeof item.position === "number" && item.position > 0 && item.position < 15000) return false;
+            return true;
+          }).slice(0, 14);
+
+          state.historyItems = valid;
+          renderRail(valid, fm);
+
+          // TV 端数据加载完成后，默认焦点落在第一张卡片或顶部“为你推荐”
+          if (state.isTv) {
+            var firstCard = document.querySelector(".gtv-card");
+            if (firstCard) {
+              firstCard.focus({ preventScroll: true });
+            } else {
+              document.getElementById("navHome").focus({ preventScroll: true });
+            }
+          }
+        });
+      }
+
+      // 8. 遥控器焦点平滑滚动与导航
       function focusTarget(el) {
         if (!el) return;
         el.focus({ preventScroll: true });
         if (state.scrollRaf) cancelAnimationFrame(state.scrollRaf);
         state.scrollRaf = requestAnimationFrame(function () {
-          if (el.scrollIntoView) {
-            el.scrollIntoView({ block: "nearest", inline: "nearest" });
-          }
+          if (el.scrollIntoView) el.scrollIntoView({ block: "nearest", inline: "nearest" });
         });
       }
 
-      // 10. 电视遥控器方向键与确认键处理
-      function setupRemoteNavigation() {
+      function setupRemote() {
         document.addEventListener("keydown", function (e) {
           var key = e.key || "";
           var code = e.keyCode || 0;
           var active = document.activeElement;
+          var searchBar = document.getElementById("searchBar");
 
-          // 确认键处理
+          // 确认键
           if (key === "Enter" || key === "Select" || code === 13 || code === 23) {
             if (active && active.id === "searchInput") {
               if (active.hasAttribute("readonly")) {
@@ -900,27 +993,32 @@
                 active.focus();
               } else {
                 e.preventDefault();
-                handleQuerySubmit();
+                handleSearchSubmit();
               }
               return;
             }
-            if (active && active.classList && active.classList.contains("history-card")) {
+            if (active && active.classList && (active.classList.contains("gtv-card") || active.classList.contains("gtv-shortcut-card"))) {
               e.preventDefault();
               active.click();
               return;
             }
           }
 
-          // 返回键退出输入框编辑态
-          if ((key === "Escape" || key === "Backspace" || code === 4 || code === 27) && active && active.id === "searchInput") {
-            if (!active.hasAttribute("readonly") && state.isTv) {
+          // 返回键优先关闭搜索栏或退出编辑态
+          if (key === "Escape" || key === "Backspace" || code === 4 || code === 27) {
+            if (active && active.id === "searchInput" && !active.hasAttribute("readonly") && state.isTv) {
               e.preventDefault();
               active.setAttribute("readonly", "readonly");
               return;
             }
+            if (searchBar.classList.contains("open")) {
+              e.preventDefault();
+              searchBar.classList.remove("open");
+              focusTarget(document.getElementById("navSearch"));
+              return;
+            }
           }
 
-          // 方向键导航（仅在 TV 模式且非输入框编辑态时接管）
           if (!state.isTv) return;
           if (active && active.id === "searchInput" && !active.hasAttribute("readonly")) return;
 
@@ -930,29 +1028,37 @@
           var isRight = key === "ArrowRight" || code === 39;
           if (!isUp && !isDown && !isLeft && !isRight) return;
 
+          // 轨道内快速左右移动
+          if ((isLeft || isRight) && active && (active.classList.contains("gtv-card") || active.classList.contains("gtv-shortcut-card"))) {
+            var sib = isRight ? active.nextElementSibling : active.previousElementSibling;
+            if (sib) {
+              e.preventDefault();
+              focusTarget(sib);
+              return;
+            }
+          }
+
+          // 顶部导航栏快速左右移动
+          if ((isLeft || isRight) && active && active.classList.contains("gtv-pill") && active.parentElement.classList.contains("gtv-nav-group")) {
+            var navSib = isRight ? active.nextElementSibling : active.previousElementSibling;
+            if (navSib) {
+              e.preventDefault();
+              focusTarget(navSib);
+              return;
+            }
+          }
+
           var focusables = Array.from(document.querySelectorAll(".focusable")).filter(function (el) {
             return el.offsetParent !== null;
           });
           if (focusables.length === 0) return;
 
-          // 焦点丢失兜底
           if (!active || focusables.indexOf(active) === -1) {
             e.preventDefault();
             focusTarget(focusables[0]);
             return;
           }
 
-          // 横向轨道快速左右导航
-          if ((isLeft || isRight) && active.classList.contains("history-card")) {
-            var nextSibling = isRight ? active.nextElementSibling : active.previousElementSibling;
-            if (nextSibling && nextSibling.classList.contains("history-card")) {
-              e.preventDefault();
-              focusTarget(nextSibling);
-              return;
-            }
-          }
-
-          // 几何最近邻搜索
           var rect = active.getBoundingClientRect();
           var cx = rect.left + rect.width / 2;
           var cy = rect.top + rect.height / 2;
@@ -989,67 +1095,63 @@
         });
       }
 
-      // 11. 绑定事件与生命周期
+      // 9. 事件绑定
       function bindEvents() {
-        document.getElementById("btnSearch").addEventListener("click", handleQuerySubmit);
-
+        var searchBar = document.getElementById("searchBar");
         var searchInput = document.getElementById("searchInput");
+
+        document.getElementById("navSearch").addEventListener("click", function () {
+          var isOpen = searchBar.classList.toggle("open");
+          if (isOpen) {
+            if (!state.isTv) searchInput.removeAttribute("readonly");
+            focusTarget(searchInput);
+          }
+        });
+
         searchInput.addEventListener("click", function () {
           if (this.hasAttribute("readonly")) {
             this.removeAttribute("readonly");
             this.focus();
           }
         });
+
         searchInput.addEventListener("blur", function () {
-          if (state.isTv) {
-            this.setAttribute("readonly", "readonly");
-          }
+          if (state.isTv) this.setAttribute("readonly", "readonly");
         });
 
-        document.getElementById("btnVod").addEventListener("click", function () {
+        document.getElementById("btnSearchGo").addEventListener("click", handleSearchSubmit);
+
+        document.getElementById("navHome").addEventListener("click", function () {
+          initData();
+        });
+        document.getElementById("navVod").addEventListener("click", function () {
           whenFm().then(function (fm) { if (fm) fm.openVod(); });
         });
-        document.getElementById("btnLive").addEventListener("click", function () {
+        document.getElementById("navLive").addEventListener("click", function () {
           whenFm().then(function (fm) { if (fm) fm.openLive(); });
         });
-        document.getElementById("btnKeep").addEventListener("click", function () {
+        document.getElementById("navKeep").addEventListener("click", function () {
           whenFm().then(function (fm) { if (fm) fm.openKeep(); });
         });
-        document.getElementById("btnSetting").addEventListener("click", function () {
+        document.getElementById("navSetting").addEventListener("click", function () {
           whenFm().then(function (fm) { if (fm) fm.openSetting(); });
         });
 
-        var quickItems = document.querySelectorAll(".quick-item");
-        for (var i = 0; i < quickItems.length; i++) {
-          quickItems[i].addEventListener("click", function () {
-            var act = this.getAttribute("data-action");
-            whenFm().then(function (fm) {
-              if (!fm) return;
-              if (act === "vod") fm.openVod();
-              else if (act === "live") fm.openLive();
-              else if (act === "keep") fm.openKeep();
-              else if (act === "reload") loadDashboardData();
-            });
-          });
-        }
-
-        // 从播放页或后台返回时刷新最近观看进度
-        window.addEventListener("fmresume", function () {
-          loadDashboardData();
+        document.getElementById("heroPrimaryBtn").addEventListener("click", function () {
+          playHistoryItem(state.activeHeroItem);
         });
+        document.getElementById("heroSecondaryBtn").addEventListener("click", function () {
+          whenFm().then(function (fm) { if (fm) fm.openVod(); });
+        });
+
+        window.addEventListener("fmresume", initData);
         window.addEventListener("resize", detectClientMode);
       }
 
       detectClientMode();
-      setupRemoteNavigation();
+      setupRemote();
       bindEvents();
-      loadDashboardData();
-
-      // TV 端默认将初始焦点落在第一个导航按钮上，避免误触输入框
-      if (state.isTv) {
-        var defaultFocus = document.getElementById("btnVod");
-        if (defaultFocus) defaultFocus.focus({ preventScroll: true });
-      }
+      initData();
     })();
   </script>
 </body>
